@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where node *)",
+      "Bash(where npx *)",
+      "PowerShell(Get-Command node, npx, python, python3 -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command python3.11, py, iisexpress -ErrorAction SilentlyContinue | Select-Object Name, Source; $env:PATH -split ';' | Where-Object { $_ -match 'python|node|ruby' })"
+    ]
+  }
+}

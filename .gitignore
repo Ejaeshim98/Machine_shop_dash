@@ -1,0 +1,10 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
+
+# Exports (don't commit generated Excel files)
+ShopFloor_Export_*.xlsx

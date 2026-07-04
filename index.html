@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop Floor Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <span class="header-logo">⚙</span>
+      <span class="header-title">Shop Floor Dashboard</span>
+    </div>
+    <div class="header-right">
+      <span class="header-date" id="headerDate"></span>
+      <span class="header-time" id="headerTime"></span>
+    </div>
+  </header>
+
+  <!-- NAV TABS -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-tab="overview">Overview</button>
+    <button class="nav-tab" data-tab="kanban">Job Board</button>
+    <button class="nav-tab" data-tab="machines">Machines</button>
+    <button class="nav-tab" data-tab="calendar">Calendar</button>
+    <button class="nav-tab" data-tab="settings">Settings</button>
+    <button class="nav-tab" data-tab="api">API</button>
+    <div class="nav-actions">
+      <button class="btn-add-job">+ New Job</button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- OVERVIEW TAB -->
+    <section class="tab-panel active" id="tab-overview">
+
+      <!-- STAT CARDS -->
+      <div class="stat-bar">
+        <div class="stat-card">
+          <div class="stat-value" id="statTotal">0</div>
+          <div class="stat-label">Total Jobs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value accent-green" id="statOnTime">0</div>
+          <div class="stat-label">On Time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value accent-yellow" id="statDueSoon">0</div>
+          <div class="stat-label">Due Soon</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value accent-red" id="statOverdue">0</div>
+          <div class="stat-label">Overdue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value accent-blue" id="statRunning">0</div>
+          <div class="stat-label">Machines Running</div>
+        </div>
+      </div>
+
+      <!-- TWO COLUMN LAYOUT -->
+      <div class="overview-grid">
+
+        <!-- MACHINE STATUS -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Machine Status</span>
+          </div>
+          <div class="machine-grid" id="machineGrid"></div>
+        </div>
+
+        <!-- KANBAN PREVIEW (condensed) -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Active Jobs (Summary)</span>
+            <button class="panel-link" onclick="switchTab('kanban')">View Full →</button>
+          </div>
+          <div class="kanban-mini" id="kanbanMini"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- KANBAN TAB -->
+    <section class="tab-panel" id="tab-kanban">
+      <div class="panel full-panel">
+        <div class="panel-header">
+          <span class="panel-title">Job Board</span>
+        </div>
+        <div class="kanban-board" id="kanbanBoard"></div>
+      </div>
+    </section>
+
+    <!-- MACHINES TAB -->
+    <section class="tab-panel" id="tab-machines">
+      <div class="panel full-panel">
+        <div class="panel-header">
+          <span class="panel-title">Machines</span>
+        </div>
+        <div class="machine-detail-grid" id="machineDetailGrid"></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS TAB -->
+    <section class="tab-panel" id="tab-settings">
+      <div class="settings-grid">
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Data Management</span></div>
+          <div class="settings-section">
+            <div class="settings-item">
+              <div class="settings-item-info">
+                <div class="settings-item-title">Export to Excel</div>
+                <div class="settings-item-desc">Download all current jobs and machine data as a formatted .xlsx file. Use for audits, backups, or offline editing.</div>
+              </div>
+              <button class="btn-primary" id="btnExportExcel">↓ Export</button>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-info">
+                <div class="settings-item-title">Import from Excel</div>
+                <div class="settings-item-desc">Load a previously exported file back into the dashboard. This will fully replace all current job and machine data.</div>
+              </div>
+              <button class="btn-secondary" id="btnImportExcel">↑ Import</button>
+            </div>
+            <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none" />
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Machine Management</span></div>
+          <div class="settings-section">
+            <div class="settings-item">
+              <div class="settings-item-info">
+                <div class="settings-item-title">Add a New Machine</div>
+                <div class="settings-item-desc">Register a new machine in the system. To edit or remove an existing machine, click its card on the Machines tab.</div>
+              </div>
+              <button class="btn-add-job" id="btnAddMachine">+ Add Machine</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- API TAB -->
+    <section class="tab-panel" id="tab-api">
+      <div class="panel full-panel">
+        <div class="panel-header">
+          <span class="panel-title">API Integrations</span>
+          <span class="badge-coming-soon">Coming Soon</span>
+        </div>
+        <div class="api-grid">
+          <div class="api-card">
+            <div class="api-card-icon">⚙</div>
+            <div class="api-card-title">Machine Part Counter</div>
+            <div class="api-card-desc">Connect WiFi-compatible CNC machines (Haas, Mazak, Fanuc) via MTConnect to pull live part counts, cycle times, and machine state directly into the dashboard.</div>
+            <span class="api-status-badge">Planned</span>
+          </div>
+          <div class="api-card">
+            <div class="api-card-icon">📊</div>
+            <div class="api-card-title">Excel / Spreadsheet Sync</div>
+            <div class="api-card-desc">Two-way sync with an Excel workbook. All job and machine data reads from and writes to your spreadsheet. Export snapshots for audits.</div>
+            <span class="api-status-badge">Segment 5</span>
+          </div>
+          <div class="api-card">
+            <div class="api-card-icon">🔔</div>
+            <div class="api-card-title">Notifications</div>
+            <div class="api-card-desc">Email or SMS alerts when a job goes overdue, a machine stops unexpectedly, or a job is ready for the next stage.</div>
+            <span class="api-status-badge">Planned</span>
+          </div>
+          <div class="api-card">
+            <div class="api-card-icon">🏭</div>
+            <div class="api-card-title">ERP / QuickBooks</div>
+            <div class="api-card-desc">Pull quotes and purchase orders directly from your ERP or accounting system so jobs are created automatically when a quote is accepted.</div>
+            <span class="api-status-badge">Planned</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALENDAR TAB -->
+    <section class="tab-panel" id="tab-calendar">
+      <div class="panel full-panel">
+        <div class="panel-header">
+          <span class="panel-title">Due Date Calendar</span>
+        </div>
+        <div class="calendar-container" id="calendarContainer"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JOB DETAIL MODAL -->
+  <div class="modal-overlay" id="jobDetailModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="detailJobId"></span>
+        <button class="modal-close" id="detailClose">✕</button>
+      </div>
+      <div class="modal-body" id="detailBody"></div>
+      <div class="modal-footer">
+        <div></div>
+        <div class="modal-footer-right">
+          <button class="btn-secondary" id="detailEdit">Edit Job</button>
+          <button class="btn-secondary" id="detailCloseBtn">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MACHINE MODAL -->
+  <div class="modal-overlay" id="machineModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="machineModalTitle">New Machine</span>
+        <button class="modal-close" id="machineModalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <label>Machine Name</label>
+          <input type="text" id="fMachineName" placeholder="e.g. CNC-003" />
+        </div>
+        <div class="form-row">
+          <label>Model</label>
+          <input type="text" id="fMachineModel" placeholder="e.g. Haas VF-2" />
+        </div>
+        <div class="form-row">
+          <label>Status</label>
+          <select id="fMachineStatus">
+            <option value="running">Running</option>
+            <option value="setting-up">Setting Up</option>
+            <option value="stopped">Stopped</option>
+            <option value="empty" selected>Machine Empty</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-delete" id="machineModalDelete" style="display:none">Delete Machine</button>
+        <div class="modal-footer-right">
+          <button class="btn-secondary" id="machineModalCancel">Cancel</button>
+          <button class="btn-primary" id="machineModalSave">Save Machine</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOB MODAL -->
+  <div class="modal-overlay" id="jobModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">New Job</span>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <label>Job #</label>
+          <input type="text" id="fJobId" disabled />
+        </div>
+        <div class="form-row">
+          <label>DWG #</label>
+          <input type="text" id="fDwg" placeholder="e.g. DWG-4521" />
+        </div>
+        <div class="form-row">
+          <label>Part Name</label>
+          <input type="text" id="fPart" placeholder="e.g. Bracket Assy" />
+        </div>
+        <div class="form-row">
+          <label>Machine</label>
+          <select id="fMachine"></select>
+        </div>
+        <div class="form-row">
+          <label>Start Date</label>
+          <input type="date" id="fStart" />
+        </div>
+        <div class="form-row">
+          <label>Due Date</label>
+          <input type="date" id="fDue" />
+        </div>
+        <div class="form-row">
+          <label>Quantity Ordered</label>
+          <input type="number" id="fQty" min="1" placeholder="1" />
+        </div>
+        <div class="form-row">
+          <label>Parts Produced So Far</label>
+          <input type="number" id="fProduced" min="0" placeholder="0" />
+        </div>
+        <div class="form-row">
+          <label>Stage</label>
+          <select id="fStage">
+            <option value="quoting">Quoting</option>
+            <option value="setup">Setup</option>
+            <option value="inprogress">In Progress</option>
+            <option value="finished">Finished</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-delete" id="modalDelete" style="display:none">Delete Job</button>
+        <div class="modal-footer-right">
+          <button class="btn-secondary" id="modalCancel">Cancel</button>
+          <button class="btn-primary" id="modalSave">Save Job</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
