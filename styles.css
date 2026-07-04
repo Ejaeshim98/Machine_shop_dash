@@ -1141,6 +1141,19 @@ body {
   max-width: 80px;
 }
 
+/* ── CLICKABLE JOB ID LINK ── */
+.job-id-link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: 700;
+  padding: 0;
+  text-decoration: underline dotted;
+}
+.job-id-link:hover { opacity: 0.75; }
+
 /* ── DOCUMENT BUTTONS on machine card ── */
 .mdc-doc-row {
   display: flex;

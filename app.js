@@ -284,7 +284,7 @@ function renderMachineDetail() {
             <button class="btn-edit-machine" data-edit-machine="${m.id}">Edit</button>
           </div>
         </div>
-        <div class="mdc-row"><span class="label">Active Job</span><span>${job ? job.id : '—'}</span></div>
+        <div class="mdc-row"><span class="label">Active Job</span><span>${job ? `<button class="job-id-link" data-job-detail="${job.id}">${job.id}</button>` : '—'}</span></div>
         <div class="mdc-row"><span class="label">DWG #</span><span>${job ? (job.dwg || '—') : '—'}</span></div>
         <div class="mdc-row"><span class="label">Part</span><span>${job ? job.part : '—'}</span></div>
         <div class="mdc-row"><span class="label">Qty</span><span>${job ? job.qty : '—'}</span></div>
@@ -331,7 +331,7 @@ function renderKanbanMini() {
         ${cards.map(j => {
           const pri = duePriority(j.due);
           return `
-            <div class="kanban-mini-card">
+            <div class="kanban-mini-card" data-job-detail="${j.id}" style="cursor:pointer">
               <div class="mini-card-job">${j.id}</div>
               <div class="mini-card-machine">${getMachine(j.machine)?.name ?? '—'}</div>
               <div class="mini-card-due ${pri}">${fmtDate(j.due)}</div>
@@ -714,6 +714,7 @@ function openJobDetail(jobId) {
   const pct  = j.qty > 0 ? Math.min(100, Math.round((j.produced / j.qty) * 100)) : 0;
 
   document.getElementById('detailJobId').textContent = `${j.id} — ${j.part}`;
+  document.getElementById('detailEdit').style.display = can('editJob') ? 'inline-block' : 'none';
   document.getElementById('detailBody').innerHTML = `
     <div class="mdc-row"><span class="label">DWG #</span><span>${j.dwg || '—'}</span></div>
     <div class="mdc-row"><span class="label">Part Name</span><span>${j.part}</span></div>
@@ -1143,12 +1144,16 @@ document.addEventListener('click', function(e) {
   if (target.id === 'machineModalDelete') { if (can('deleteMachine')) deleteMachine(); return; }
   if (target.id === 'machineModal')       { closeMachineModal(); return; }
 
-  // Click kanban card to edit (but not when dragging or clicking a doc button)
+  // Click kanban card → job detail; double-click → edit (handled in dblclick listener)
   const card = target.closest('.kanban-card');
   if (card && !card.classList.contains('dragging') && !target.closest('.kc-doc-btn')) {
-    if (can('editJob')) openModal(card.dataset.job);
+    openJobDetail(card.dataset.job);
     return;
   }
+
+  // job-id-link or mini kanban card → job detail
+  const jobDetailTrigger = target.closest('[data-job-detail]');
+  if (jobDetailTrigger) { openJobDetail(jobDetailTrigger.dataset.jobDetail); return; }
 
   // Modal controls
   if (target.id === 'modalClose' || target.id === 'modalCancel') { closeModal(); return; }
@@ -1242,6 +1247,15 @@ document.addEventListener('change', function(e) {
     if (!confirmed) { e.target.value = ''; return; }
     importExcel(file);
     e.target.value = ''; // reset so same file can be re-imported
+  }
+});
+
+// Double-click kanban card to edit
+document.addEventListener('dblclick', function(e) {
+  const card = e.target.closest('.kanban-card');
+  if (card && !e.target.closest('.kc-doc-btn') && can('editJob')) {
+    closeJobDetail();
+    openModal(card.dataset.job);
   }
 });
 
