@@ -658,21 +658,102 @@ body {
 .api-badge-live { background: rgba(22,163,74,0.12); color: var(--green); }
 .api-badge-sim  { background: rgba(217,119,6,0.12);  color: var(--yellow); }
 
-.api-counter-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 8px;
-  margin-top: 8px;
+/* ── SIMULATOR POPOUT ── */
+.sim-popout {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 360px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  z-index: 300;
+  overflow: hidden;
 }
+
+.sim-popout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+
+.sim-popout-title-row { display: flex; align-items: center; gap: 8px; }
+.sim-popout-title { font-size: 13px; font-weight: 700; }
+
+.sim-state-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: background 0.3s;
+}
+.sim-state-dot.running { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+.sim-state-label { font-size: 12px; color: var(--text-dim); font-weight: 600; }
+.sim-state-label.running { color: var(--green); }
+
+.sim-btn-start {
+  background: var(--green);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  opacity: 1;
+  transition: opacity 0.15s;
+}
+.sim-btn-start:disabled { opacity: 0.35; cursor: default; }
+
+.sim-btn-stop {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  transition: background 0.15s, color 0.15s;
+}
+.sim-btn-stop:not(:disabled):hover { background: var(--red); color: #fff; border-color: var(--red); }
+.sim-btn-stop:disabled { opacity: 0.35; cursor: default; }
+
+.sim-close {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 2px 6px;
+  margin-left: 4px;
+}
+.sim-close:hover { color: var(--text); }
+
+.sim-counter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  padding: 14px;
+}
+
 .api-counter-card {
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 8px 10px;
+  padding: 10px 12px;
+  transition: border-color 0.2s;
 }
-.api-counter-name { font-size: 11px; font-weight: 700; margin-bottom: 2px; }
-.api-counter-val  { font-size: 20px; font-weight: 700; color: var(--accent); line-height: 1.1; }
-.api-counter-label { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+.api-counter-card.live { border-color: var(--green); }
+
+.api-counter-name  { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+.api-counter-val   { font-size: 26px; font-weight: 700; color: var(--accent); line-height: 1; }
+.api-counter-label { font-size: 10px; color: var(--text-dim); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+.api-counter-label.live { color: var(--green); }
 
 .badge-coming-soon {
   font-size: 11px;

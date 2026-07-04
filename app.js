@@ -389,17 +389,32 @@ function checkAlerts() {
 
 let simInterval = null;
 
+function updateSimUI() {
+  const running = !!simInterval;
+  const dot   = document.getElementById('simStateDot');
+  const label = document.getElementById('simStateLabel');
+  const badge = document.getElementById('simStatusBadge');
+  const start = document.getElementById('btnStartSim');
+  const stop  = document.getElementById('btnStopSim');
+  if (dot)   { dot.className   = 'sim-state-dot'   + (running ? ' running' : ''); }
+  if (label) { label.className = 'sim-state-label'  + (running ? ' running' : ''); label.textContent = running ? 'Running' : 'Stopped'; }
+  if (badge) { badge.textContent = running ? 'Running' : 'Stopped'; badge.className = 'api-status-badge ' + (running ? 'api-badge-live' : 'api-badge-sim'); }
+  if (start) start.disabled = running;
+  if (stop)  stop.disabled  = !running;
+}
+
 function renderApiCounters() {
   const el = document.getElementById('apiCounterGrid');
   if (!el) return;
+  const running = !!simInterval;
   el.innerHTML = machines.map(m => {
     const job = jobs.find(j => j.machine === m.id && j.stage === 'inprogress');
-    const isRunning = m.status === 'running' && job;
+    const isLive = running && m.status === 'running' && job;
     return `
-      <div class="api-counter-card">
+      <div class="api-counter-card ${isLive ? 'live' : ''}">
         <div class="api-counter-name">${m.name}</div>
         <div class="api-counter-val">${job ? (job.produced ?? 0) : '—'}</div>
-        <div class="api-counter-label">${isRunning ? '● Live' : job ? 'Paused' : 'No active job'}</div>
+        <div class="api-counter-label ${isLive ? 'live' : ''}">${isLive ? '● Live' : job ? 'Paused' : 'No active job'}</div>
       </div>`;
   }).join('');
 }
@@ -410,22 +425,25 @@ function startSimulator() {
     machines.forEach(m => {
       if (m.status !== 'running') return;
       const job = jobs.find(j => j.machine === m.id && j.stage === 'inprogress');
-      if (!job) return;
-      if (job.produced < job.qty) {
-        job.produced++;
-        addAlert('blue', `${m.name} — ${job.id} produced part ${job.produced} of ${job.qty}`);
-      }
+      if (!job || job.produced >= job.qty) return;
+      job.produced++;
+      addAlert('blue', `${m.name} — ${job.id}: part ${job.produced} of ${job.qty} complete`);
     });
     renderApiCounters();
-    renderAll();
-  }, 5000);
+    renderStats();
+    renderNotifBadge();
+  }, 3000);
   addAlert('blue', 'Part counter simulator started');
+  updateSimUI();
+  renderApiCounters();
   renderNotifBadge();
 }
 
 function stopSimulator() {
   if (simInterval) { clearInterval(simInterval); simInterval = null; }
   addAlert('blue', 'Part counter simulator stopped');
+  updateSimUI();
+  renderApiCounters();
   renderNotifBadge();
 }
 
@@ -811,8 +829,20 @@ document.addEventListener('click', function(e) {
     document.getElementById('excelFileInput').click(); return;
   }
 
-  // Simulator controls
-  if (target.id === 'btnStartSim') { startSimulator(); renderApiCounters(); return; }
+  // Simulator popout open
+  if (target.id === 'btnOpenSim') {
+    const pop = document.getElementById('simPopout');
+    pop.style.display = 'block';
+    updateSimUI();
+    renderApiCounters();
+    return;
+  }
+  // Simulator close
+  if (target.id === 'btnCloseSim') {
+    document.getElementById('simPopout').style.display = 'none'; return;
+  }
+  // Simulator start/stop
+  if (target.id === 'btnStartSim') { startSimulator(); return; }
   if (target.id === 'btnStopSim')  { stopSimulator();  return; }
 
   // Notification bell

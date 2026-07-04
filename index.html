@@ -184,12 +184,10 @@
                 <div class="api-card-title">Machine Part Counter</div>
                 <div class="api-card-desc">Simulating MTConnect — auto-increments parts produced on running machines. Swap in a real machine IP when ready.</div>
               </div>
-              <span class="api-status-badge api-badge-sim">Simulating</span>
+              <span class="api-status-badge api-badge-sim" id="simStatusBadge">Stopped</span>
             </div>
-            <div class="api-counter-grid" id="apiCounterGrid"></div>
-            <div style="display:flex;gap:8px;margin-top:10px">
-              <button class="btn-primary" id="btnStartSim" style="font-size:12px;padding:5px 12px">▶ Start Simulator</button>
-              <button class="btn-secondary" id="btnStopSim" style="font-size:12px;padding:5px 12px">◼ Stop</button>
+            <div class="api-card-action">
+              <button class="btn-primary" id="btnOpenSim" style="font-size:12px;padding:6px 14px">Open Counter Panel</button>
             </div>
           </div>
 
@@ -261,6 +259,23 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- SIMULATOR POPOUT -->
+  <div class="sim-popout" id="simPopout" style="display:none">
+    <div class="sim-popout-header">
+      <div class="sim-popout-title-row">
+        <span class="sim-popout-title">Part Counter</span>
+        <span class="sim-state-dot" id="simStateDot"></span>
+        <span class="sim-state-label" id="simStateLabel">Stopped</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="sim-btn-start" id="btnStartSim">▶ Start</button>
+        <button class="sim-btn-stop" id="btnStopSim">◼ Stop</button>
+        <button class="sim-close" id="btnCloseSim">✕</button>
+      </div>
+    </div>
+    <div class="sim-counter-grid" id="apiCounterGrid"></div>
   </div>
 
   <!-- NOTIFICATION PANEL -->
