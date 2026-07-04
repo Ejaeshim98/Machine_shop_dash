@@ -7,6 +7,11 @@ A browser-based desktop dashboard for CNC machine shop management. Tracks jobs, 
 ## Current Status
 **Segments 1–8 complete. Next: Segment 9 — Electron Desktop App**
 
+### What's working now
+- Login screen with three demo accounts (admin/admin123, manager/manager123, operator/operator123)
+- Role-based access: Admins and Managers can create/edit/delete jobs; Operators can only update machine status
+- Session persists on page refresh; logout clears the session
+
 ---
 
 ## Completed
