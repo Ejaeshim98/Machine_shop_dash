@@ -1,21 +1,39 @@
 /* ── RESET & BASE ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── LIGHT THEME (default) ── */
 :root {
-  --bg:        #0f1117;
-  --surface:   #1a1d27;
-  --surface2:  #22263a;
-  --border:    #2e3350;
-  --text:      #e2e6f0;
-  --text-dim:  #7a84a8;
+  --bg:        #f8f9fc;
+  --surface:   #ffffff;
+  --surface2:  #f1f3f8;
+  --border:    #e5e7ef;
+  --text:      #1e2130;
+  --text-dim:  #9499b0;
+  --green:     #16a34a;
+  --yellow:    #d97706;
+  --red:       #dc2626;
+  --blue:      #6366f1;
+  --purple:    #7c3aed;
+  --accent:    #6366f1;
+  --radius:    10px;
+  --shadow:    0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* ── DARK THEME (option 3 — orange accent) ── */
+body.dark {
+  --bg:        #0d0f14;
+  --surface:   #13161e;
+  --surface2:  #1a1e28;
+  --border:    #252836;
+  --text:      #f0f2f8;
+  --text-dim:  #6b7280;
   --green:     #22c55e;
   --yellow:    #f59e0b;
   --red:       #ef4444;
-  --blue:      #3b82f6;
-  --purple:    #8b5cf6;
-  --accent:    #3b82f6;
-  --radius:    10px;
-  --shadow:    0 2px 12px rgba(0,0,0,0.4);
+  --blue:      #f97316;
+  --purple:    #f97316;
+  --accent:    #f97316;
+  --shadow:    0 2px 12px rgba(0,0,0,0.5);
 }
 
 body {
@@ -24,6 +42,7 @@ body {
   font-family: 'Segoe UI', system-ui, sans-serif;
   font-size: 14px;
   min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
 }
 
 /* ── HEADER ── */
@@ -511,6 +530,28 @@ body {
 
 .settings-item-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
 .settings-item-desc  { font-size: 12px; color: var(--text-dim); line-height: 1.5; max-width: 340px; }
+
+/* ── DARK MODE TOGGLE ── */
+.toggle-switch { display: flex; align-items: center; cursor: pointer; flex-shrink: 0; }
+.toggle-switch input { display: none; }
+.toggle-track {
+  width: 44px; height: 24px;
+  background: var(--border);
+  border-radius: 12px;
+  position: relative;
+  transition: background 0.2s;
+}
+.toggle-switch input:checked + .toggle-track { background: var(--accent); }
+.toggle-thumb {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 18px; height: 18px;
+  background: var(--surface);
+  border-radius: 50%;
+  transition: left 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle-switch input:checked + .toggle-track .toggle-thumb { left: 23px; }
 
 /* ── DRAG OVER ── */
 .kanban-col.drag-over { background: rgba(59,130,246,0.08); border-color: var(--accent); }

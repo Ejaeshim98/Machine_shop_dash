@@ -63,6 +63,22 @@ function statusLabel(s) {
   return { running: 'Running', 'setting-up': 'Setting Up', stopped: 'Stopped', empty: 'Machine Empty' }[s] || s;
 }
 
+// ── DARK MODE ───────────────────────────────────────────────
+
+function applyTheme(dark) {
+  document.body.classList.toggle('dark', dark);
+  const toggle = document.getElementById('darkModeToggle');
+  if (toggle) toggle.checked = dark;
+  localStorage.setItem('darkMode', dark ? '1' : '0');
+}
+
+// Load saved preference on startup
+applyTheme(localStorage.getItem('darkMode') === '1');
+
+document.addEventListener('change', function(e) {
+  if (e.target.id === 'darkModeToggle') applyTheme(e.target.checked);
+}, true);
+
 // ── CLOCK ───────────────────────────────────────────────────
 
 function updateClock() {
