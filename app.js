@@ -775,7 +775,9 @@ function renderPreviewContent() {
   if (previewFile.type === 'application/pdf') {
     body.innerHTML = `<embed src="${previewFile.data}" type="application/pdf" width="100%" height="100%">`;
   } else {
-    const w = previewZoom === 1 ? 'max-width:100%;width:auto' : `width:${Math.round(previewZoom * 100)}%`;
+    const w = previewZoom === 1
+      ? 'max-width:100%;width:auto'
+      : `width:${Math.round(previewZoom * 100)}%;flex-shrink:0`;
     body.innerHTML = `<img src="${previewFile.data}" alt="${previewFile.name}" style="${w};height:auto;display:block;border-radius:4px;box-shadow:0 4px 24px rgba(0,0,0,0.15)">`;
   }
 }
