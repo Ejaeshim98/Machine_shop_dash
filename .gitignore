@@ -8,3 +8,8 @@ Thumbs.db
 
 # Exports (don't commit generated Excel files)
 ShopFloor_Export_*.xlsx
+
+# Electron / Node
+node_modules/
+dist/
+package-lock.json

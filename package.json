@@ -1,0 +1,35 @@
+{
+  "name": "shop-floor-dashboard",
+  "version": "1.0.0",
+  "description": "CNC Machine Shop Floor Dashboard",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.shopfloor.dashboard",
+    "productName": "Shop Floor Dashboard",
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "files": [
+      "index.html",
+      "styles.css",
+      "app.js",
+      "main.js"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^36.9.5",
+    "electron-builder": "^26.15.3"
+  },
+  "allowScripts": {
+    "electron@36.9.5": true,
+    "electron-winstaller@5.4.0": true
+  }
+}
