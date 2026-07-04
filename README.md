@@ -55,12 +55,36 @@ A browser-based desktop dashboard for CNC machine shop management. Tracks jobs, 
 - Mobile / tablet responsive layout
 - Dark/light mode toggle
 
-### Segment 7 — API Integrations (Future)
+### Segment 7 — API Integrations 🔄 (Next)
 - Live part counter via MTConnect (Haas, Mazak, Fanuc over WiFi)
 - Email / SMS alerts for overdue jobs and machine stops
 - ERP / QuickBooks quote import
 
 ### Segment 8 — User Permissions (Future)
+- User login system
+- Role-based access: Admin, Manager, Operator
+- Operators can update status; Managers can create/edit/delete jobs
+
+---
+
+## Desktop Application Roadmap
+
+Goal: package the dashboard as a native Windows/Mac desktop app.
+
+### Segment 9 — Electron Wrapper
+Wrap the web app in Electron. Produces a `.exe` installer — no browser required. App gets its own icon, window, and taskbar entry.
+
+### Segment 10 — Local Data Persistence
+Save all jobs and machine data to a local file (SQLite or JSON) so data survives between sessions. Replaces dummy data with real persistent storage.
+
+### Segment 11 — Auto-Updater
+App checks GitHub for new versions and updates itself silently — no manual reinstall needed.
+
+### Segment 12 — Backend Server
+Adds a small server to enable: real MTConnect machine polling, email/SMS alerts, and multi-computer access so the whole shop sees the same live data.
+
+### Segment 13 — Installer & Distribution
+Signed Windows installer (`.exe`) ready for deployment across all shop floor machines.
 - User login system
 - Role-based access: Admin, Manager, Operator
 - Operators can update status; Managers can create/edit/delete jobs

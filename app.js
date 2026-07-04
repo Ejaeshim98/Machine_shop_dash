@@ -326,6 +326,109 @@ function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
 }
 
+// ── NOTIFICATIONS ────────────────────────────────────────────
+
+const alerts = [];
+let notifOpen = false;
+
+function addAlert(type, message) {
+  const exists = alerts.some(a => a.message === message);
+  if (exists) return;
+  alerts.unshift({ type, message, time: new Date() });
+  if (alerts.length > 30) alerts.pop();
+  renderNotifBadge();
+}
+
+function renderNotifBadge() {
+  const badge = document.getElementById('notifBadge');
+  if (!badge) return;
+  if (alerts.length > 0) {
+    badge.style.display = 'flex';
+    badge.textContent = alerts.length > 99 ? '99+' : alerts.length;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function renderNotifPanel() {
+  const list = document.getElementById('notifList');
+  if (!list) return;
+  if (alerts.length === 0) {
+    list.innerHTML = '<div class="notif-empty">No alerts — everything looks good.</div>';
+    return;
+  }
+  list.innerHTML = alerts.map(a => {
+    const mins = Math.floor((new Date() - a.time) / 60000);
+    const timeLabel = mins < 1 ? 'Just now' : mins < 60 ? `${mins}m ago` : `${Math.floor(mins/60)}h ago`;
+    return `
+      <div class="notif-item">
+        <div class="notif-dot ${a.type}"></div>
+        <div>
+          <div class="notif-msg">${a.message}</div>
+          <div class="notif-time">${timeLabel}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function checkAlerts() {
+  jobs.forEach(j => {
+    if (j.stage === 'finished') return;
+    const diff = Math.floor((j.due - TODAY) / 86400000);
+    if (diff < 0)   addAlert('red',    `${j.id} — ${j.part} is overdue by ${Math.abs(diff)} day(s)`);
+    else if (diff === 0) addAlert('yellow', `${j.id} — ${j.part} is due today`);
+    else if (diff === 1) addAlert('yellow', `${j.id} — ${j.part} is due tomorrow`);
+  });
+  machines.forEach(m => {
+    if (m.status === 'stopped') addAlert('red', `${m.name} is currently stopped`);
+    if (m.status === 'empty')   addAlert('blue', `${m.name} is empty — ready for a new job`);
+  });
+}
+
+// ── PART COUNTER SIMULATOR ───────────────────────────────────
+
+let simInterval = null;
+
+function renderApiCounters() {
+  const el = document.getElementById('apiCounterGrid');
+  if (!el) return;
+  el.innerHTML = machines.map(m => {
+    const job = jobs.find(j => j.machine === m.id && j.stage === 'inprogress');
+    const isRunning = m.status === 'running' && job;
+    return `
+      <div class="api-counter-card">
+        <div class="api-counter-name">${m.name}</div>
+        <div class="api-counter-val">${job ? (job.produced ?? 0) : '—'}</div>
+        <div class="api-counter-label">${isRunning ? '● Live' : job ? 'Paused' : 'No active job'}</div>
+      </div>`;
+  }).join('');
+}
+
+function startSimulator() {
+  if (simInterval) return;
+  simInterval = setInterval(() => {
+    machines.forEach(m => {
+      if (m.status !== 'running') return;
+      const job = jobs.find(j => j.machine === m.id && j.stage === 'inprogress');
+      if (!job) return;
+      if (job.produced < job.qty) {
+        job.produced++;
+        addAlert('blue', `${m.name} — ${job.id} produced part ${job.produced} of ${job.qty}`);
+      }
+    });
+    renderApiCounters();
+    renderAll();
+  }, 5000);
+  addAlert('blue', 'Part counter simulator started');
+  renderNotifBadge();
+}
+
+function stopSimulator() {
+  if (simInterval) { clearInterval(simInterval); simInterval = null; }
+  addAlert('blue', 'Part counter simulator stopped');
+  renderNotifBadge();
+}
+
 // ── EXCEL INTEGRATION ────────────────────────────────────────
 
 function exportExcel() {
@@ -708,6 +811,33 @@ document.addEventListener('click', function(e) {
     document.getElementById('excelFileInput').click(); return;
   }
 
+  // Simulator controls
+  if (target.id === 'btnStartSim') { startSimulator(); renderApiCounters(); return; }
+  if (target.id === 'btnStopSim')  { stopSimulator();  return; }
+
+  // Notification bell
+  if (target.closest('#notifBell')) {
+    notifOpen = !notifOpen;
+    const panel = document.getElementById('notifPanel');
+    panel.style.display = notifOpen ? 'flex' : 'none';
+    if (notifOpen) renderNotifPanel();
+    return;
+  }
+
+  // Clear all notifications
+  if (target.id === 'notifClear') {
+    alerts.length = 0;
+    renderNotifBadge();
+    renderNotifPanel();
+    return;
+  }
+
+  // Close notif panel when clicking outside
+  if (notifOpen && !target.closest('#notifPanel') && !target.closest('#notifBell')) {
+    notifOpen = false;
+    document.getElementById('notifPanel').style.display = 'none';
+  }
+
   // Edit machine card in settings
   const editMachineCard = target.closest('[data-edit-machine]');
   if (editMachineCard) { openMachineModal(editMachineCard.dataset.editMachine); return; }
@@ -801,6 +931,9 @@ function renderAll() {
   renderKanbanBoard();
   renderMachineDetail();
   renderCalendar();
+  renderApiCounters();
+  checkAlerts();
+  renderNotifBadge();
 }
 
 renderAll();

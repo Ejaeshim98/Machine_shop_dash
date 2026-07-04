@@ -556,6 +556,71 @@ body {
 /* ── DRAG OVER ── */
 .kanban-col.drag-over { background: rgba(59,130,246,0.08); border-color: var(--accent); }
 
+/* ── NOTIFICATION BELL ── */
+.notif-bell {
+  position: relative;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+.notif-bell:hover { background: var(--surface2); }
+.notif-icon { font-size: 16px; }
+.notif-badge {
+  position: absolute;
+  top: 0; right: 0;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+.notif-panel {
+  position: fixed;
+  top: 56px;
+  right: 16px;
+  width: 320px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  z-index: 200;
+  max-height: 420px;
+  display: flex;
+  flex-direction: column;
+}
+.notif-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.notif-panel-title { font-size: 13px; font-weight: 700; }
+.notif-clear { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; font-weight: 600; }
+.notif-list { overflow-y: auto; flex: 1; }
+.notif-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.notif-item:last-child { border-bottom: none; }
+.notif-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.notif-dot.red    { background: var(--red); }
+.notif-dot.yellow { background: var(--yellow); }
+.notif-dot.blue   { background: var(--accent); }
+.notif-msg { color: var(--text); line-height: 1.4; }
+.notif-time { color: var(--text-dim); font-size: 11px; margin-top: 2px; }
+.notif-empty { padding: 24px 16px; text-align: center; color: var(--text-dim); font-size: 13px; }
+
 /* ── API TAB ── */
 .api-grid {
   display: grid;
@@ -574,9 +639,11 @@ body {
   gap: 8px;
 }
 
-.api-card-icon { font-size: 24px; }
-.api-card-title { font-size: 15px; font-weight: 700; }
-.api-card-desc { font-size: 12px; color: var(--text-dim); line-height: 1.6; flex: 1; }
+.api-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.api-card-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.api-card-desc { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+.api-card-action { font-size: 12px; margin-top: 8px; }
+.btn-link { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; font-weight: 600; padding: 0; text-decoration: underline; }
 
 .api-status-badge {
   display: inline-block;
@@ -584,11 +651,28 @@ body {
   font-weight: 700;
   padding: 3px 10px;
   border-radius: 20px;
-  background: rgba(59,130,246,0.15);
-  color: var(--blue);
-  align-self: flex-start;
-  margin-top: 4px;
+  background: rgba(99,102,241,0.12);
+  color: var(--accent);
+  flex-shrink: 0;
 }
+.api-badge-live { background: rgba(22,163,74,0.12); color: var(--green); }
+.api-badge-sim  { background: rgba(217,119,6,0.12);  color: var(--yellow); }
+
+.api-counter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.api-counter-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.api-counter-name { font-size: 11px; font-weight: 700; margin-bottom: 2px; }
+.api-counter-val  { font-size: 20px; font-weight: 700; color: var(--accent); line-height: 1.1; }
+.api-counter-label { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
 
 .badge-coming-soon {
   font-size: 11px;
