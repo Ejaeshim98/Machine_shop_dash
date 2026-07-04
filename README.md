@@ -5,7 +5,7 @@ A browser-based desktop dashboard for CNC machine shop management. Tracks jobs, 
 ---
 
 ## Current Status
-**Active Segment: 6 — UI/UX Design Pass**
+**Segments 1–8 complete. Next: Segment 9 — Electron Desktop App**
 
 ---
 

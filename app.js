@@ -63,6 +63,74 @@ function statusLabel(s) {
   return { running: 'Running', 'setting-up': 'Setting Up', stopped: 'Stopped', empty: 'Machine Empty' }[s] || s;
 }
 
+// ── AUTH & PERMISSIONS ───────────────────────────────────────
+
+const USERS = [
+  { username: 'admin',    password: 'admin123',    role: 'Admin',    display: 'Admin' },
+  { username: 'manager',  password: 'manager123',  role: 'Manager',  display: 'Manager' },
+  { username: 'operator', password: 'operator123', role: 'Operator', display: 'Operator' },
+];
+
+let currentUser = null;
+
+const ROLE_PERMS = {
+  Admin:    { createJob: true,  editJob: true,  deleteJob: true,  editMachine: true,  settings: true  },
+  Manager:  { createJob: true,  editJob: true,  deleteJob: true,  editMachine: true,  settings: false },
+  Operator: { createJob: false, editJob: false, deleteJob: false, editMachine: true,  settings: false },
+};
+
+function can(action) {
+  if (!currentUser) return false;
+  return ROLE_PERMS[currentUser.role]?.[action] ?? false;
+}
+
+function login(username, password) {
+  const user = USERS.find(u => u.username === username && u.password === password);
+  if (!user) return false;
+  currentUser = user;
+  sessionStorage.setItem('sfUser', JSON.stringify({ username: user.username, role: user.role, display: user.display }));
+  applyAuth();
+  return true;
+}
+
+function logout() {
+  currentUser = null;
+  sessionStorage.removeItem('sfUser');
+  applyAuth();
+}
+
+function applyAuth() {
+  const loggedIn = !!currentUser;
+  document.getElementById('loginOverlay').style.display  = loggedIn ? 'none' : 'flex';
+  document.getElementById('headerUser').style.display    = loggedIn ? 'flex' : 'none';
+
+  if (loggedIn) {
+    document.getElementById('headerUserName').textContent = currentUser.display;
+    document.getElementById('headerUserRole').textContent = currentUser.role;
+  }
+
+  // Settings tab visibility
+  const settingsTab = document.querySelector('.nav-tab[data-tab="settings"]');
+  if (settingsTab) settingsTab.style.display = can('settings') ? '' : 'none';
+
+  // + New Job button
+  const newJobBtn = document.querySelector('.nav-actions .btn-add-job');
+  if (newJobBtn) newJobBtn.style.display = can('createJob') ? '' : 'none';
+
+  renderAll();
+}
+
+// Restore session on page load
+(function restoreSession() {
+  const saved = sessionStorage.getItem('sfUser');
+  if (saved) {
+    try {
+      const u = JSON.parse(saved);
+      currentUser = USERS.find(x => x.username === u.username) || null;
+    } catch(e) { currentUser = null; }
+  }
+})();
+
 // ── DARK MODE ───────────────────────────────────────────────
 
 function applyTheme(dark) {
@@ -698,7 +766,7 @@ function openModal(jobId) {
   const isEdit = !!jobId;
 
   document.getElementById('modalTitle').textContent = isEdit ? 'Edit Job' : 'New Job';
-  document.getElementById('modalDelete').style.display = isEdit ? 'inline-block' : 'none';
+  document.getElementById('modalDelete').style.display = (isEdit && can('deleteJob')) ? 'inline-block' : 'none';
 
   // Populate machine dropdown
   const fMachine = document.getElementById('fMachine');
@@ -825,8 +893,23 @@ document.addEventListener('click', function(e) {
   if (target.id === 'detailClose' || target.id === 'detailCloseBtn' || target.id === 'jobDetailModal') { closeJobDetail(); return; }
   if (target.id === 'detailEdit') { closeJobDetail(); openModal(detailJobId); return; }
 
+  // Login
+  if (target.id === 'btnLogin') {
+    const u = document.getElementById('loginUsername').value.trim();
+    const p = document.getElementById('loginPassword').value;
+    const err = document.getElementById('loginError');
+    if (!login(u, p)) { err.style.display = 'block'; } else { err.style.display = 'none'; }
+    return;
+  }
+
+  // Logout
+  if (target.id === 'btnLogout') { logout(); return; }
+
   // Add job button
-  if (target.closest('.btn-add-job') && target.id !== 'btnAddMachine') { openModal(); return; }
+  if (target.closest('.btn-add-job') && target.id !== 'btnAddMachine') {
+    if (!can('createJob')) return;
+    openModal(); return;
+  }
 
   // Add machine button
   if (target.id === 'btnAddMachine') { openMachineModal(); return; }
@@ -878,9 +961,12 @@ document.addEventListener('click', function(e) {
     document.getElementById('notifPanel').style.display = 'none';
   }
 
-  // Edit machine card in settings
+  // Edit machine card
   const editMachineCard = target.closest('[data-edit-machine]');
-  if (editMachineCard) { openMachineModal(editMachineCard.dataset.editMachine); return; }
+  if (editMachineCard) {
+    if (can('editMachine')) openMachineModal(editMachineCard.dataset.editMachine);
+    return;
+  }
 
   // Machine modal controls
   if (target.id === 'machineModalClose' || target.id === 'machineModalCancel') { closeMachineModal(); return; }
@@ -890,7 +976,10 @@ document.addEventListener('click', function(e) {
 
   // Click kanban card to edit (but not when dragging)
   const card = target.closest('.kanban-card');
-  if (card && !card.classList.contains('dragging')) { openModal(card.dataset.job); return; }
+  if (card && !card.classList.contains('dragging')) {
+    if (can('editJob')) openModal(card.dataset.job);
+    return;
+  }
 
   // Modal controls
   if (target.id === 'modalClose' || target.id === 'modalCancel') { closeModal(); return; }
@@ -976,4 +1065,9 @@ function renderAll() {
   renderNotifBadge();
 }
 
+// Enter key on login fields
+document.getElementById('loginUsername').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginPassword').focus(); });
+document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btnLogin').click(); });
+
+applyAuth();
 renderAll();
