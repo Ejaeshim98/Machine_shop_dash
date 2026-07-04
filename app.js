@@ -63,6 +63,66 @@ function statusLabel(s) {
   return { running: 'Running', 'setting-up': 'Setting Up', stopped: 'Stopped', empty: 'Machine Empty' }[s] || s;
 }
 
+// ── DEMO DOCUMENTS ───────────────────────────────────────────
+
+function makeDummyDrawing(j) {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="420" height="320">'
+    + '<rect width="420" height="320" fill="white"/>'
+    + '<rect x="8" y="8" width="404" height="304" fill="none" stroke="#333" stroke-width="2"/>'
+    + '<rect x="8" y="264" width="404" height="48" fill="#f0f0f0" stroke="#333"/>'
+    + '<rect x="70" y="38" width="280" height="198" fill="none" stroke="#222" stroke-width="1.5"/>'
+    + '<rect x="70" y="38" width="50" height="198" fill="#e8e8e8" stroke="#222" stroke-width="1"/>'
+    + '<rect x="300" y="38" width="50" height="198" fill="#e8e8e8" stroke="#222" stroke-width="1"/>'
+    + '<line x1="210" y1="22" x2="210" y2="248" stroke="#999" stroke-width="0.7" stroke-dasharray="6,3"/>'
+    + '<line x1="22" y1="137" x2="398" y2="137" stroke="#999" stroke-width="0.7" stroke-dasharray="6,3"/>'
+    + '<circle cx="210" cy="137" r="10" fill="none" stroke="#555" stroke-width="1"/>'
+    + '<circle cx="105" cy="78" r="7" fill="none" stroke="#555" stroke-width="1"/>'
+    + '<circle cx="315" cy="78" r="7" fill="none" stroke="#555" stroke-width="1"/>'
+    + '<circle cx="105" cy="198" r="7" fill="none" stroke="#555" stroke-width="1"/>'
+    + '<circle cx="315" cy="198" r="7" fill="none" stroke="#555" stroke-width="1"/>'
+    + '<line x1="70" y1="250" x2="350" y2="250" stroke="#555" stroke-width="0.8"/>'
+    + '<line x1="70" y1="246" x2="70" y2="254" stroke="#555" stroke-width="0.8"/>'
+    + '<line x1="350" y1="246" x2="350" y2="254" stroke="#555" stroke-width="0.8"/>'
+    + '<text x="210" y="248" text-anchor="middle" font-size="9" fill="#555" font-family="monospace">280.00</text>'
+    + '<text x="18" y="280" font-size="11" font-family="monospace" fill="#222" font-weight="bold">' + j.dwg + '</text>'
+    + '<text x="18" y="295" font-size="10" font-family="monospace" fill="#444">' + j.part + '</text>'
+    + '<text x="18" y="307" font-size="8" font-family="monospace" fill="#888">REV A  |  SCALE 1:2  |  MATL: AL 6061</text>'
+    + '<text x="400" y="295" font-size="9" font-family="monospace" fill="#444" text-anchor="end">QTY: ' + j.qty + '</text>'
+    + '</svg>';
+  return { name: j.dwg + '-drawing.svg', type: 'image/svg+xml', data: 'data:image/svg+xml;base64,' + btoa(svg) };
+}
+
+function makeDummyWorkOrder(j) {
+  const m = getMachine(j.machine);
+  const machineName = m ? m.name + ' — ' + m.model : '—';
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="420" height="320">'
+    + '<rect width="420" height="320" fill="white"/>'
+    + '<rect x="8" y="8" width="404" height="304" fill="none" stroke="#333" stroke-width="2"/>'
+    + '<rect x="8" y="8" width="404" height="46" fill="#1e3a5f"/>'
+    + '<text x="210" y="36" text-anchor="middle" font-size="16" font-family="sans-serif" fill="white" font-weight="bold">WORK ORDER</text>'
+    + '<text x="20" y="76" font-size="11" font-family="monospace" fill="#222" font-weight="bold">Job #: ' + j.id + '</text>'
+    + '<text x="20" y="96" font-size="11" font-family="monospace" fill="#333">Part: ' + j.part + '</text>'
+    + '<text x="20" y="116" font-size="11" font-family="monospace" fill="#333">Machine: ' + machineName + '</text>'
+    + '<text x="20" y="136" font-size="11" font-family="monospace" fill="#333">Qty Ordered: ' + j.qty + '</text>'
+    + '<line x1="20" y1="150" x2="400" y2="150" stroke="#ccc" stroke-width="1"/>'
+    + '<text x="20" y="170" font-size="10" font-family="monospace" fill="#444" font-weight="bold">OPERATIONS:</text>'
+    + '<text x="20" y="188" font-size="9" font-family="monospace" fill="#666">1. Setup fixture and clamp workpiece securely</text>'
+    + '<text x="20" y="204" font-size="9" font-family="monospace" fill="#666">2. Face mill top surface to 0.005 flatness</text>'
+    + '<text x="20" y="220" font-size="9" font-family="monospace" fill="#666">3. Mill profile per DWG dimensions and tolerances</text>'
+    + '<text x="20" y="236" font-size="9" font-family="monospace" fill="#666">4. Drill and tap all holes per drawing callouts</text>'
+    + '<text x="20" y="252" font-size="9" font-family="monospace" fill="#666">5. Deburr all edges, clean, and final inspect</text>'
+    + '<line x1="20" y1="266" x2="400" y2="266" stroke="#ccc" stroke-width="1"/>'
+    + '<text x="20" y="283" font-size="9" font-family="monospace" fill="#888">Inspector: ___________________   Date: ___________</text>'
+    + '<text x="20" y="300" font-size="9" font-family="monospace" fill="#888">Approved:  ___________________   Qty Passed: ______</text>'
+    + '</svg>';
+  return { name: j.id + '-workorder.svg', type: 'image/svg+xml', data: 'data:image/svg+xml;base64,' + btoa(svg) };
+}
+
+(function addDemoDocuments() {
+  const j = jobs.find(x => x.id === 'J1001');
+  if (j) { j.drawing = makeDummyDrawing(j); j.workOrder = makeDummyWorkOrder(j); }
+})();
+
 // ── AUTH & PERMISSIONS ───────────────────────────────────────
 
 const USERS = [
@@ -233,7 +293,10 @@ function renderMachineDetail() {
         </div>
         ${duebar(job)}
         ${job && (job.drawing || job.workOrder) ? `
-        <button class="btn-view-drawings" data-view-drawings="${job.id}">📎 View Documents${job.drawing && job.workOrder ? ' (Drawing + Work Order)' : job.drawing ? ' (Drawing)' : ' (Work Order)'}</button>` : ''}
+        <div class="mdc-doc-row">
+          ${job.drawing   ? `<button class="btn-doc-link" data-open-drawing="${job.id}">📐 Part Drawing</button>` : ''}
+          ${job.workOrder ? `<button class="btn-doc-link" data-open-workorder="${job.id}">📋 Work Order</button>` : ''}
+        </div>` : ''}
         <select class="status-select" data-machine="${m.id}">
           <option value="running"     ${m.status==='running'     ? 'selected':''}>Running</option>
           <option value="setting-up"  ${m.status==='setting-up'  ? 'selected':''}>Setting Up</option>
@@ -309,11 +372,12 @@ function renderKanbanBoard() {
                 <div class="kc-dwg">DWG: ${j.dwg || '—'}</div>
                 <div class="kc-footer">
                   <span class="kc-due ${pri}">${dueLabel(j.due)}</span>
-                  <div style="display:flex;align-items:center;gap:6px">
-                    ${(j.drawing || j.workOrder) ? `<span class="kc-attach" title="${[j.drawing ? 'Drawing' : '', j.workOrder ? 'Work Order' : ''].filter(Boolean).join(' + ')}">📎</span>` : ''}
-                    <span class="kc-qty">Qty: ${j.qty}</span>
-                  </div>
+                  <span class="kc-qty">Qty: ${j.qty}</span>
                 </div>
+                ${(j.drawing || j.workOrder) ? `<div class="kc-docs">
+                  ${j.drawing   ? `<button class="kc-doc-btn" data-open-drawing="${j.id}">📐 Drawing</button>` : ''}
+                  ${j.workOrder ? `<button class="kc-doc-btn" data-open-workorder="${j.id}">📋 Work Order</button>` : ''}
+                </div>` : ''}
               </div>`;
           }).join('')}
         </div>
@@ -1060,9 +1124,21 @@ document.addEventListener('click', function(e) {
     return;
   }
 
-  // View drawings button on machine card
-  const viewDrawings = target.closest('[data-view-drawings]');
-  if (viewDrawings) { openJobDetail(viewDrawings.dataset.viewDrawings); return; }
+  // Open drawing directly
+  const openDrawing = target.closest('[data-open-drawing]');
+  if (openDrawing) {
+    const j = jobs.find(x => x.id === openDrawing.dataset.openDrawing);
+    if (j?.drawing) window.open(j.drawing.data, '_blank');
+    return;
+  }
+
+  // Open work order directly
+  const openWorkOrder = target.closest('[data-open-workorder]');
+  if (openWorkOrder) {
+    const j = jobs.find(x => x.id === openWorkOrder.dataset.openWorkorder);
+    if (j?.workOrder) window.open(j.workOrder.data, '_blank');
+    return;
+  }
 });
 
 document.addEventListener('change', function(e) {
