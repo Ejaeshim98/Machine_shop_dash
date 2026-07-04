@@ -74,9 +74,9 @@ const USERS = [
 let currentUser = null;
 
 const ROLE_PERMS = {
-  Admin:    { createJob: true,  editJob: true,  deleteJob: true,  editMachine: true,  settings: true  },
-  Manager:  { createJob: true,  editJob: true,  deleteJob: true,  editMachine: true,  settings: false },
-  Operator: { createJob: false, editJob: false, deleteJob: false, editMachine: true,  settings: false },
+  Admin:    { createJob: true,  editJob: true,  deleteJob: true,  editMachine: true,  deleteMachine: true,  settings: true  },
+  Manager:  { createJob: true,  editJob: true,  deleteJob: true,  editMachine: true,  deleteMachine: true,  settings: false },
+  Operator: { createJob: false, editJob: false, deleteJob: false, editMachine: true,  deleteMachine: false, settings: false },
 };
 
 function can(action) {
@@ -702,7 +702,7 @@ function openMachineModal(machineId) {
   editingMachineId = machineId || null;
   const isEdit = !!machineId;
   document.getElementById('machineModalTitle').textContent = isEdit ? 'Edit Machine' : 'New Machine';
-  document.getElementById('machineModalDelete').style.display = isEdit ? 'inline-block' : 'none';
+  document.getElementById('machineModalDelete').style.display = (isEdit && can('deleteMachine')) ? 'inline-block' : 'none';
   if (isEdit) {
     const m = machines.find(x => x.id === machineId);
     document.getElementById('fMachineName').value   = m.name;
@@ -971,7 +971,7 @@ document.addEventListener('click', function(e) {
   // Machine modal controls
   if (target.id === 'machineModalClose' || target.id === 'machineModalCancel') { closeMachineModal(); return; }
   if (target.id === 'machineModalSave')   { saveMachine(); return; }
-  if (target.id === 'machineModalDelete') { deleteMachine(); return; }
+  if (target.id === 'machineModalDelete') { if (can('deleteMachine')) deleteMachine(); return; }
   if (target.id === 'machineModal')       { closeMachineModal(); return; }
 
   // Click kanban card to edit (but not when dragging)
