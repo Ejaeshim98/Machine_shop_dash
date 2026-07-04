@@ -427,7 +427,17 @@ function startSimulator() {
       const job = jobs.find(j => j.machine === m.id && j.stage === 'inprogress');
       if (!job || job.produced >= job.qty) return;
       job.produced++;
-      addAlert('blue', `${m.name} — ${job.id}: part ${job.produced} of ${job.qty} complete`);
+      if (!job._milestones) job._milestones = new Set();
+      const pct = Math.floor((job.produced / job.qty) * 100);
+      for (const milestone of [50, 75, 90, 100]) {
+        if (pct >= milestone && !job._milestones.has(milestone)) {
+          job._milestones.add(milestone);
+          const msg = milestone === 100
+            ? `${m.name} — ${job.id} complete! All ${job.qty} parts produced`
+            : `${m.name} — ${job.id} is ${milestone}% complete (${job.produced} / ${job.qty} parts)`;
+          addAlert(milestone === 100 ? 'yellow' : 'blue', msg);
+        }
+      }
     });
     renderApiCounters();
     renderStats();
