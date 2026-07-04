@@ -11,11 +11,7 @@
     "appId": "com.shopfloor.dashboard",
     "productName": "Shop Floor Dashboard",
     "win": {
-      "target": "nsis"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "target": "dir"
     },
     "files": [
       "index.html",
