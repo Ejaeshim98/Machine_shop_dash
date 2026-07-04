@@ -1110,9 +1110,9 @@ document.addEventListener('click', function(e) {
   if (target.id === 'machineModalDelete') { if (can('deleteMachine')) deleteMachine(); return; }
   if (target.id === 'machineModal')       { closeMachineModal(); return; }
 
-  // Click kanban card to edit (but not when dragging)
+  // Click kanban card to edit (but not when dragging or clicking a doc button)
   const card = target.closest('.kanban-card');
-  if (card && !card.classList.contains('dragging')) {
+  if (card && !card.classList.contains('dragging') && !target.closest('.kc-doc-btn')) {
     if (can('editJob')) openModal(card.dataset.job);
     return;
   }

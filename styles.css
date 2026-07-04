@@ -333,35 +333,35 @@ body {
 .mini-card-machine { color: var(--text-dim); font-size: 10px; margin-top: 1px; }
 .mini-card-due { font-size: 10px; margin-top: 3px; font-weight: 600; }
 
-/* ── KANBAN (full board — swim lanes) ── */
+/* ── KANBAN (full board — vertical columns) ── */
 .kanban-board {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-direction: row;
+  gap: 12px;
   padding: 16px;
+  align-items: flex-start;
+  overflow-x: auto;
+  min-height: 60vh;
 }
 
 .kanban-col {
+  flex: 1;
+  min-width: 220px;
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 8px;
   display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  min-height: 110px;
+  flex-direction: column;
 }
 
 .kanban-col-header {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 6px;
-  padding: 12px 16px;
-  border-right: 1px solid var(--border);
-  min-width: 110px;
-  width: 110px;
-  flex-shrink: 0;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
 }
 
 .kanban-col-title {
@@ -369,8 +369,6 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  writing-mode: horizontal-tb;
-  text-align: center;
 }
 
 .col-quoting    .kanban-col-title { color: var(--purple); }
@@ -390,11 +388,9 @@ body {
 .kanban-cards {
   padding: 10px;
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
   flex: 1;
-  align-content: flex-start;
 }
 
 .kanban-card {
@@ -404,8 +400,7 @@ body {
   padding: 12px;
   cursor: grab;
   transition: transform 0.1s, box-shadow 0.1s;
-  width: 200px;
-  flex-shrink: 0;
+  width: 100%;
 }
 
 .kanban-card:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
