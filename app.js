@@ -754,6 +754,28 @@ function closeJobDetail() {
   detailJobId = null;
 }
 
+// ── FILE PREVIEW ─────────────────────────────────────────────
+
+let previewFile = null;
+
+function openFilePreview(file, label) {
+  previewFile = file;
+  document.getElementById('filePreviewTitle').textContent = label + '  —  ' + file.name;
+  const body = document.getElementById('filePreviewBody');
+  if (file.type === 'application/pdf') {
+    body.innerHTML = `<embed src="${file.data}" type="application/pdf" width="100%" height="100%">`;
+  } else {
+    body.innerHTML = `<img src="${file.data}" alt="${file.name}">`;
+  }
+  document.getElementById('filePreviewOverlay').classList.add('open');
+}
+
+function closeFilePreview() {
+  document.getElementById('filePreviewOverlay').classList.remove('open');
+  document.getElementById('filePreviewBody').innerHTML = '';
+  previewFile = null;
+}
+
 // ── SETTINGS — MACHINE MANAGEMENT ───────────────────────────
 
 function renderMachineSettings() {
@@ -1115,28 +1137,36 @@ document.addEventListener('click', function(e) {
     return;
   }
 
-  // Drawing / Work Order — view in new tab
+  // Drawing / Work Order — open preview from job detail gallery
   const attView = target.closest('[data-att-view]');
   if (attView) {
     const j = jobs.find(x => x.id === attView.dataset.attView);
     const file = j?.[attView.dataset.attField];
-    if (file) window.open(file.data, '_blank');
+    const label = attView.dataset.attField === 'drawing' ? 'Part Drawing' : 'Work Order';
+    if (file) openFilePreview(file, label);
     return;
   }
 
-  // Open drawing directly
+  // Open drawing preview
   const openDrawing = target.closest('[data-open-drawing]');
   if (openDrawing) {
     const j = jobs.find(x => x.id === openDrawing.dataset.openDrawing);
-    if (j?.drawing) window.open(j.drawing.data, '_blank');
+    if (j?.drawing) openFilePreview(j.drawing, 'Part Drawing');
     return;
   }
 
-  // Open work order directly
+  // Open work order preview
   const openWorkOrder = target.closest('[data-open-workorder]');
   if (openWorkOrder) {
     const j = jobs.find(x => x.id === openWorkOrder.dataset.openWorkorder);
-    if (j?.workOrder) window.open(j.workOrder.data, '_blank');
+    if (j?.workOrder) openFilePreview(j.workOrder, 'Work Order');
+    return;
+  }
+
+  // File preview close / open-in-tab
+  if (target.id === 'filePreviewClose' || target.id === 'filePreviewOverlay') { closeFilePreview(); return; }
+  if (target.id === 'filePreviewOpenTab') {
+    if (previewFile) window.open(previewFile.data, '_blank');
     return;
   }
 });
