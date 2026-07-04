@@ -403,13 +403,21 @@
           </select>
         </div>
         <div class="form-row">
-          <label>Attachments <span class="att-label-hint">PDF · JPG · PNG</span></label>
-          <div class="attachment-zone">
-            <div class="attachment-list" id="attachmentList"></div>
-            <button type="button" class="btn-attach" id="btnAddAttachment">+ Add File</button>
+          <label>Part Drawing <span class="att-label-hint">PDF · JPG · PNG</span></label>
+          <div class="attachment-slot" id="drawingSlot">
+            <div class="att-slot-preview" id="drawingPreview"></div>
+            <button type="button" class="btn-attach" id="btnAddDrawing">+ Upload Drawing</button>
           </div>
         </div>
-        <input type="file" id="attachmentInput" accept=".pdf,.jpg,.jpeg,.png" multiple style="display:none" />
+        <div class="form-row">
+          <label>Work Order <span class="att-label-hint">PDF · JPG · PNG</span></label>
+          <div class="attachment-slot" id="workOrderSlot">
+            <div class="att-slot-preview" id="workOrderPreview"></div>
+            <button type="button" class="btn-attach" id="btnAddWorkOrder">+ Upload Work Order</button>
+          </div>
+        </div>
+        <input type="file" id="drawingInput"   accept=".pdf,.jpg,.jpeg,.png" style="display:none" />
+        <input type="file" id="workOrderInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" />
       </div>
       <div class="modal-footer">
         <button class="btn-delete" id="modalDelete" style="display:none">Delete Job</button>

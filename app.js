@@ -232,8 +232,8 @@ function renderMachineDetail() {
           <span ${pri ? `style="color:var(--${pri})"` : ''}>${job ? dueLabel(job.due) : '—'}</span>
         </div>
         ${duebar(job)}
-        ${job && (job.attachments || []).length ? `
-        <button class="btn-view-drawings" data-view-drawings="${job.id}">📎 View Drawings / Work Orders (${job.attachments.length})</button>` : ''}
+        ${job && (job.drawing || job.workOrder) ? `
+        <button class="btn-view-drawings" data-view-drawings="${job.id}">📎 View Documents${job.drawing && job.workOrder ? ' (Drawing + Work Order)' : job.drawing ? ' (Drawing)' : ' (Work Order)'}</button>` : ''}
         <select class="status-select" data-machine="${m.id}">
           <option value="running"     ${m.status==='running'     ? 'selected':''}>Running</option>
           <option value="setting-up"  ${m.status==='setting-up'  ? 'selected':''}>Setting Up</option>
@@ -310,7 +310,7 @@ function renderKanbanBoard() {
                 <div class="kc-footer">
                   <span class="kc-due ${pri}">${dueLabel(j.due)}</span>
                   <div style="display:flex;align-items:center;gap:6px">
-                    ${(j.attachments || []).length ? `<span class="kc-attach" title="${j.attachments.length} attachment(s)">📎 ${j.attachments.length}</span>` : ''}
+                    ${(j.drawing || j.workOrder) ? `<span class="kc-attach" title="${[j.drawing ? 'Drawing' : '', j.workOrder ? 'Work Order' : ''].filter(Boolean).join(' + ')}">📎</span>` : ''}
                     <span class="kc-qty">Qty: ${j.qty}</span>
                   </div>
                 </div>
@@ -667,17 +667,19 @@ function openJobDetail(jobId) {
         <div style="width:${pct}%;height:100%;border-radius:4px;background:var(--${pri})"></div>
       </div>
     </div>
-    ${(j.attachments || []).length ? `
-    <div class="att-section">
-      <div class="att-section-title">Attachments</div>
+    ${(j.drawing || j.workOrder) ? `<div class="att-section">
+      <div class="att-section-title">Documents</div>
       <div class="att-gallery">
-        ${(j.attachments).map((f, i) => {
-          const isImg = f.type.startsWith('image/');
-          return `<div class="att-gallery-item" data-att-view="${j.id}" data-att-idx="${i}" title="${f.name}">
-            ${isImg ? `<img src="${f.data}" alt="${f.name}">` : `<div class="att-pdf-icon-lg">PDF</div>`}
-            <div class="att-gallery-name">${f.name}</div>
-          </div>`;
-        }).join('')}
+        ${j.drawing ? `<div class="att-gallery-item" data-att-view="${j.id}" data-att-field="drawing" title="${j.drawing.name}">
+          ${j.drawing.type.startsWith('image/') ? `<img src="${j.drawing.data}" alt="${j.drawing.name}">` : `<div class="att-pdf-icon-lg">PDF</div>`}
+          <div class="att-gallery-label">Part Drawing</div>
+          <div class="att-gallery-name">${j.drawing.name}</div>
+        </div>` : ''}
+        ${j.workOrder ? `<div class="att-gallery-item" data-att-view="${j.id}" data-att-field="workOrder" title="${j.workOrder.name}">
+          ${j.workOrder.type.startsWith('image/') ? `<img src="${j.workOrder.data}" alt="${j.workOrder.name}">` : `<div class="att-pdf-icon-lg">PDF</div>`}
+          <div class="att-gallery-label">Work Order</div>
+          <div class="att-gallery-name">${j.workOrder.name}</div>
+        </div>` : ''}
       </div>
     </div>` : ''}`;
   document.getElementById('jobDetailModal').classList.add('open');
@@ -772,7 +774,8 @@ function deleteMachine() {
 // ── MODAL ────────────────────────────────────────────────────
 
 let editingJobId = null;
-let pendingAttachments = []; // {name, type, data} — built during modal session, merged on save
+let pendingDrawing   = null; // {name, type, data} — part drawing for current modal session
+let pendingWorkOrder = null; // {name, type, data} — work order for current modal session
 
 function nextJobId() {
   const nums = jobs.map(j => parseInt(j.id.replace('J', ''))).filter(n => !isNaN(n));
@@ -814,29 +817,36 @@ function openModal(jobId) {
     document.getElementById('fStage').value   = 'quoting';
   }
 
-  // Populate attachments for this job
-  pendingAttachments = isEdit ? ((jobs.find(x => x.id === jobId)?.attachments || []).map(a => Object.assign({}, a))) : [];
-  renderAttachmentList();
+  // Populate drawing / work order for this job
+  const _j = isEdit ? jobs.find(x => x.id === jobId) : null;
+  pendingDrawing   = _j?.drawing   ? Object.assign({}, _j.drawing)   : null;
+  pendingWorkOrder = _j?.workOrder ? Object.assign({}, _j.workOrder) : null;
+  renderDrawingSlot();
+  renderWorkOrderSlot();
 
   modal.classList.add('open');
 }
 
-function renderAttachmentList() {
-  const el = document.getElementById('attachmentList');
-  if (!el) return;
-  if (!pendingAttachments.length) { el.innerHTML = ''; return; }
-  el.innerHTML = pendingAttachments.map((f, i) => {
-    const isImg = f.type.startsWith('image/');
-    const thumb = isImg
-      ? `<img class="att-thumb" src="${f.data}" alt="${f.name}">`
-      : `<div class="att-pdf-icon">PDF</div>`;
-    return `<div class="att-item">
-      ${thumb}
-      <div class="att-name" title="${f.name}">${f.name}</div>
-      <button class="att-remove" data-att-index="${i}" title="Remove">✕</button>
+function renderSlot(previewId, btnId, file, clearAction) {
+  const preview = document.getElementById(previewId);
+  const btn     = document.getElementById(btnId);
+  if (!preview) return;
+  if (file) {
+    const isImg = file.type.startsWith('image/');
+    preview.innerHTML = `<div class="att-item">
+      ${isImg ? `<img class="att-thumb" src="${file.data}" alt="${file.name}">` : `<div class="att-pdf-icon">PDF</div>`}
+      <div class="att-name" title="${file.name}">${file.name}</div>
+      <button class="att-remove" data-clear="${clearAction}" title="Remove">✕</button>
     </div>`;
-  }).join('');
+    if (btn) btn.textContent = '↺ Replace';
+  } else {
+    preview.innerHTML = '';
+    if (btn) btn.textContent = clearAction === 'drawing' ? '+ Upload Drawing' : '+ Upload Work Order';
+  }
 }
+
+function renderDrawingSlot()   { renderSlot('drawingPreview',   'btnAddDrawing',   pendingDrawing,   'drawing'); }
+function renderWorkOrderSlot() { renderSlot('workOrderPreview', 'btnAddWorkOrder', pendingWorkOrder, 'workOrder'); }
 
 function closeModal() {
   document.getElementById('jobModal').classList.remove('open');
@@ -862,7 +872,7 @@ function saveJob() {
   if (editingJobId) {
     const j = jobs.find(x => x.id === editingJobId);
     const oldMachine = j.machine;
-    j.dwg = dwg; j.part = part; j.machine = machine; j.start = start; j.due = due; j.qty = qty; j.produced = produced; j.stage = stage; j.attachments = pendingAttachments.slice();
+    j.dwg = dwg; j.part = part; j.machine = machine; j.start = start; j.due = due; j.qty = qty; j.produced = produced; j.stage = stage; j.drawing = pendingDrawing; j.workOrder = pendingWorkOrder;
     // if reassigned, clear old machine if it has no other active jobs
     if (oldMachine !== machine) {
       const stillActive = jobs.some(x => x.id !== editingJobId && x.machine === oldMachine && x.stage !== 'finished');
@@ -880,7 +890,7 @@ function saveJob() {
       }
     }
   } else {
-    jobs.push({ id: nextJobId(), dwg, part, machine, start, due, qty, produced, stage, attachments: pendingAttachments.slice() });
+    jobs.push({ id: nextJobId(), dwg, part, machine, start, due, qty, produced, stage, drawing: pendingDrawing, workOrder: pendingWorkOrder });
   }
 
   closeModal();
@@ -1029,23 +1039,24 @@ document.addEventListener('click', function(e) {
   // Click outside modal to close
   if (target.id === 'jobModal') { closeModal(); return; }
 
-  // Attachment — open file picker
-  if (target.id === 'btnAddAttachment') { document.getElementById('attachmentInput').click(); return; }
+  // Drawing / Work Order — open file pickers
+  if (target.id === 'btnAddDrawing')   { document.getElementById('drawingInput').click();   return; }
+  if (target.id === 'btnAddWorkOrder') { document.getElementById('workOrderInput').click(); return; }
 
-  // Attachment — remove item
+  // Drawing / Work Order — remove
   const attRemove = target.closest('.att-remove');
   if (attRemove) {
-    pendingAttachments.splice(parseInt(attRemove.dataset.attIndex), 1);
-    renderAttachmentList();
+    if (attRemove.dataset.clear === 'drawing')   { pendingDrawing   = null; renderDrawingSlot(); }
+    if (attRemove.dataset.clear === 'workOrder') { pendingWorkOrder = null; renderWorkOrderSlot(); }
     return;
   }
 
-  // Attachment — open/view in new tab
+  // Drawing / Work Order — view in new tab
   const attView = target.closest('[data-att-view]');
   if (attView) {
     const j = jobs.find(x => x.id === attView.dataset.attView);
-    const idx = parseInt(attView.dataset.attIdx);
-    if (j && j.attachments && j.attachments[idx]) window.open(j.attachments[idx].data, '_blank');
+    const file = j?.[attView.dataset.attField];
+    if (file) window.open(file.data, '_blank');
     return;
   }
 
@@ -1063,16 +1074,22 @@ document.addEventListener('change', function(e) {
     return;
   }
 
-  // Attachment file input
-  if (e.target.id === 'attachmentInput') {
-    Array.from(e.target.files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = ev => {
-        pendingAttachments.push({ name: file.name, type: file.type, data: ev.target.result });
-        renderAttachmentList();
-      };
-      reader.readAsDataURL(file);
-    });
+  // Drawing file input
+  if (e.target.id === 'drawingInput') {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => { pendingDrawing = { name: file.name, type: file.type, data: ev.target.result }; renderDrawingSlot(); };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+    return;
+  }
+
+  // Work Order file input
+  if (e.target.id === 'workOrderInput') {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => { pendingWorkOrder = { name: file.name, type: file.type, data: ev.target.result }; renderWorkOrderSlot(); };
+    reader.readAsDataURL(file);
     e.target.value = '';
     return;
   }

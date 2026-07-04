@@ -975,7 +975,7 @@ body {
 /* make modal body scrollable for long forms */
 .modal-body { max-height: 68vh; overflow-y: auto; }
 
-/* ── ATTACHMENTS — modal upload zone ── */
+/* ── ATTACHMENTS — modal upload slots ── */
 .att-label-hint {
   font-weight: 400;
   text-transform: none;
@@ -984,7 +984,7 @@ body {
   color: var(--text-dim);
 }
 
-.attachment-zone {
+.attachment-slot {
   background: var(--surface2);
   border: 1px dashed var(--border);
   border-radius: 8px;
@@ -994,7 +994,7 @@ body {
   gap: 8px;
 }
 
-.attachment-list {
+.att-slot-preview {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -1126,6 +1126,15 @@ body {
   transition: background 0.15s;
 }
 .att-gallery-item:hover .att-pdf-icon-lg { background: rgba(239,68,68,0.22); }
+
+.att-gallery-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  text-align: center;
+}
 
 .att-gallery-name {
   font-size: 10px;
