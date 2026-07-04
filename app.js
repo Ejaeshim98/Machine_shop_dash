@@ -757,23 +757,54 @@ function closeJobDetail() {
 // ── FILE PREVIEW ─────────────────────────────────────────────
 
 let previewFile = null;
+let previewZoom = 1.0;
 
 function openFilePreview(file, label) {
   previewFile = file;
+  previewZoom = 1.0;
   document.getElementById('filePreviewTitle').textContent = label + '  —  ' + file.name;
-  const body = document.getElementById('filePreviewBody');
-  if (file.type === 'application/pdf') {
-    body.innerHTML = `<embed src="${file.data}" type="application/pdf" width="100%" height="100%">`;
-  } else {
-    body.innerHTML = `<img src="${file.data}" alt="${file.name}">`;
-  }
+  const isPdf = file.type === 'application/pdf';
+  document.getElementById('zoomControls').style.display = isPdf ? 'none' : 'flex';
+  renderPreviewContent();
   document.getElementById('filePreviewOverlay').classList.add('open');
+}
+
+function renderPreviewContent() {
+  const body = document.getElementById('filePreviewBody');
+  document.getElementById('zoomLevel').textContent = Math.round(previewZoom * 100) + '%';
+  if (previewFile.type === 'application/pdf') {
+    body.innerHTML = `<embed src="${previewFile.data}" type="application/pdf" width="100%" height="100%">`;
+  } else {
+    const w = previewZoom === 1 ? 'max-width:100%;width:auto' : `width:${Math.round(previewZoom * 100)}%`;
+    body.innerHTML = `<img src="${previewFile.data}" alt="${previewFile.name}" style="${w};height:auto;display:block;border-radius:4px;box-shadow:0 4px 24px rgba(0,0,0,0.15)">`;
+  }
 }
 
 function closeFilePreview() {
   document.getElementById('filePreviewOverlay').classList.remove('open');
   document.getElementById('filePreviewBody').innerHTML = '';
   previewFile = null;
+  previewZoom = 1.0;
+}
+
+function printPreview() {
+  if (!previewFile) return;
+  const win = window.open('', '_blank');
+  if (previewFile.type === 'application/pdf') {
+    win.document.write(`<embed src="${previewFile.data}" type="application/pdf" width="100%" height="100%" style="position:fixed;inset:0;border:none">`);
+    setTimeout(() => win.print(), 800);
+  } else {
+    win.document.write(`<!DOCTYPE html><html><head><style>*{margin:0;padding:0}body{display:flex;justify-content:center}img{max-width:100%;height:auto}</style></head><body><img src="${previewFile.data}" onload="window.print()"></body></html>`);
+  }
+  win.document.close();
+}
+
+function savePreview() {
+  if (!previewFile) return;
+  const a = document.createElement('a');
+  a.href = previewFile.data;
+  a.download = previewFile.name;
+  a.click();
 }
 
 // ── SETTINGS — MACHINE MANAGEMENT ───────────────────────────
@@ -1163,12 +1194,13 @@ document.addEventListener('click', function(e) {
     return;
   }
 
-  // File preview close / open-in-tab
+  // File preview controls
   if (target.id === 'filePreviewClose' || target.id === 'filePreviewOverlay') { closeFilePreview(); return; }
-  if (target.id === 'filePreviewOpenTab') {
-    if (previewFile) window.open(previewFile.data, '_blank');
-    return;
-  }
+  if (target.id === 'zoomIn')          { previewZoom = Math.min(4, +(previewZoom + 0.25).toFixed(2)); renderPreviewContent(); return; }
+  if (target.id === 'zoomOut')         { previewZoom = Math.max(0.25, +(previewZoom - 0.25).toFixed(2)); renderPreviewContent(); return; }
+  if (target.id === 'zoomFit')         { previewZoom = 1.0; renderPreviewContent(); return; }
+  if (target.id === 'filePreviewPrint') { printPreview(); return; }
+  if (target.id === 'filePreviewSave')  { savePreview();  return; }
 });
 
 document.addEventListener('change', function(e) {

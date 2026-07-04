@@ -273,9 +273,18 @@
     <div class="file-preview-panel">
       <div class="file-preview-header">
         <span class="file-preview-title" id="filePreviewTitle"></span>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button class="btn-secondary" id="filePreviewOpenTab" style="font-size:12px;padding:5px 12px">Open in New Tab</button>
-          <button class="modal-close" id="filePreviewClose">✕</button>
+        <div class="file-preview-controls">
+          <div class="zoom-controls" id="zoomControls">
+            <button class="zoom-btn" id="zoomOut" title="Zoom out">−</button>
+            <span class="zoom-level" id="zoomLevel">100%</span>
+            <button class="zoom-btn" id="zoomIn" title="Zoom in">+</button>
+            <button class="zoom-reset" id="zoomFit">Fit</button>
+          </div>
+          <div class="preview-actions">
+            <button class="btn-secondary preview-action-btn" id="filePreviewPrint">🖨 Print</button>
+            <button class="btn-secondary preview-action-btn" id="filePreviewSave">↓ Save</button>
+            <button class="modal-close" id="filePreviewClose">✕</button>
+          </div>
         </div>
       </div>
       <div class="file-preview-body" id="filePreviewBody"></div>
