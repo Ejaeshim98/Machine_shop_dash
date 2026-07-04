@@ -94,7 +94,7 @@ function makeDummyDrawing(j) {
 
 function makeDummyWorkOrder(j) {
   const m = getMachine(j.machine);
-  const machineName = m ? m.name + ' — ' + m.model : '—';
+  const machineName = m ? m.name + ' - ' + m.model : '-';
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="420" height="320">'
     + '<rect width="420" height="320" fill="white"/>'
     + '<rect x="8" y="8" width="404" height="304" fill="none" stroke="#333" stroke-width="2"/>'
