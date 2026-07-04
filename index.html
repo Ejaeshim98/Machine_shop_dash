@@ -402,6 +402,14 @@
             <option value="finished">Finished</option>
           </select>
         </div>
+        <div class="form-row">
+          <label>Attachments <span class="att-label-hint">PDF · JPG · PNG</span></label>
+          <div class="attachment-zone">
+            <div class="attachment-list" id="attachmentList"></div>
+            <button type="button" class="btn-attach" id="btnAddAttachment">+ Add File</button>
+          </div>
+        </div>
+        <input type="file" id="attachmentInput" accept=".pdf,.jpg,.jpeg,.png" multiple style="display:none" />
       </div>
       <div class="modal-footer">
         <button class="btn-delete" id="modalDelete" style="display:none">Delete Job</button>

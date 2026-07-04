@@ -232,6 +232,8 @@ function renderMachineDetail() {
           <span ${pri ? `style="color:var(--${pri})"` : ''}>${job ? dueLabel(job.due) : '—'}</span>
         </div>
         ${duebar(job)}
+        ${job && (job.attachments || []).length ? `
+        <button class="btn-view-drawings" data-view-drawings="${job.id}">📎 View Drawings / Work Orders (${job.attachments.length})</button>` : ''}
         <select class="status-select" data-machine="${m.id}">
           <option value="running"     ${m.status==='running'     ? 'selected':''}>Running</option>
           <option value="setting-up"  ${m.status==='setting-up'  ? 'selected':''}>Setting Up</option>
@@ -307,7 +309,10 @@ function renderKanbanBoard() {
                 <div class="kc-dwg">DWG: ${j.dwg || '—'}</div>
                 <div class="kc-footer">
                   <span class="kc-due ${pri}">${dueLabel(j.due)}</span>
-                  <span class="kc-qty">Qty: ${j.qty}</span>
+                  <div style="display:flex;align-items:center;gap:6px">
+                    ${(j.attachments || []).length ? `<span class="kc-attach" title="${j.attachments.length} attachment(s)">📎 ${j.attachments.length}</span>` : ''}
+                    <span class="kc-qty">Qty: ${j.qty}</span>
+                  </div>
                 </div>
               </div>`;
           }).join('')}
@@ -661,7 +666,20 @@ function openJobDetail(jobId) {
       <div style="background:var(--surface2);border-radius:4px;height:8px;overflow:hidden">
         <div style="width:${pct}%;height:100%;border-radius:4px;background:var(--${pri})"></div>
       </div>
-    </div>`;
+    </div>
+    ${(j.attachments || []).length ? `
+    <div class="att-section">
+      <div class="att-section-title">Attachments</div>
+      <div class="att-gallery">
+        ${(j.attachments).map((f, i) => {
+          const isImg = f.type.startsWith('image/');
+          return `<div class="att-gallery-item" data-att-view="${j.id}" data-att-idx="${i}" title="${f.name}">
+            ${isImg ? `<img src="${f.data}" alt="${f.name}">` : `<div class="att-pdf-icon-lg">PDF</div>`}
+            <div class="att-gallery-name">${f.name}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>` : ''}`;
   document.getElementById('jobDetailModal').classList.add('open');
 }
 
@@ -754,6 +772,7 @@ function deleteMachine() {
 // ── MODAL ────────────────────────────────────────────────────
 
 let editingJobId = null;
+let pendingAttachments = []; // {name, type, data} — built during modal session, merged on save
 
 function nextJobId() {
   const nums = jobs.map(j => parseInt(j.id.replace('J', ''))).filter(n => !isNaN(n));
@@ -795,7 +814,28 @@ function openModal(jobId) {
     document.getElementById('fStage').value   = 'quoting';
   }
 
+  // Populate attachments for this job
+  pendingAttachments = isEdit ? ((jobs.find(x => x.id === jobId)?.attachments || []).map(a => Object.assign({}, a))) : [];
+  renderAttachmentList();
+
   modal.classList.add('open');
+}
+
+function renderAttachmentList() {
+  const el = document.getElementById('attachmentList');
+  if (!el) return;
+  if (!pendingAttachments.length) { el.innerHTML = ''; return; }
+  el.innerHTML = pendingAttachments.map((f, i) => {
+    const isImg = f.type.startsWith('image/');
+    const thumb = isImg
+      ? `<img class="att-thumb" src="${f.data}" alt="${f.name}">`
+      : `<div class="att-pdf-icon">PDF</div>`;
+    return `<div class="att-item">
+      ${thumb}
+      <div class="att-name" title="${f.name}">${f.name}</div>
+      <button class="att-remove" data-att-index="${i}" title="Remove">✕</button>
+    </div>`;
+  }).join('');
 }
 
 function closeModal() {
@@ -822,7 +862,7 @@ function saveJob() {
   if (editingJobId) {
     const j = jobs.find(x => x.id === editingJobId);
     const oldMachine = j.machine;
-    j.dwg = dwg; j.part = part; j.machine = machine; j.start = start; j.due = due; j.qty = qty; j.produced = produced; j.stage = stage;
+    j.dwg = dwg; j.part = part; j.machine = machine; j.start = start; j.due = due; j.qty = qty; j.produced = produced; j.stage = stage; j.attachments = pendingAttachments.slice();
     // if reassigned, clear old machine if it has no other active jobs
     if (oldMachine !== machine) {
       const stillActive = jobs.some(x => x.id !== editingJobId && x.machine === oldMachine && x.stage !== 'finished');
@@ -840,7 +880,7 @@ function saveJob() {
       }
     }
   } else {
-    jobs.push({ id: nextJobId(), dwg, part, machine, start, due, qty, produced, stage });
+    jobs.push({ id: nextJobId(), dwg, part, machine, start, due, qty, produced, stage, attachments: pendingAttachments.slice() });
   }
 
   closeModal();
@@ -988,6 +1028,30 @@ document.addEventListener('click', function(e) {
 
   // Click outside modal to close
   if (target.id === 'jobModal') { closeModal(); return; }
+
+  // Attachment — open file picker
+  if (target.id === 'btnAddAttachment') { document.getElementById('attachmentInput').click(); return; }
+
+  // Attachment — remove item
+  const attRemove = target.closest('.att-remove');
+  if (attRemove) {
+    pendingAttachments.splice(parseInt(attRemove.dataset.attIndex), 1);
+    renderAttachmentList();
+    return;
+  }
+
+  // Attachment — open/view in new tab
+  const attView = target.closest('[data-att-view]');
+  if (attView) {
+    const j = jobs.find(x => x.id === attView.dataset.attView);
+    const idx = parseInt(attView.dataset.attIdx);
+    if (j && j.attachments && j.attachments[idx]) window.open(j.attachments[idx].data, '_blank');
+    return;
+  }
+
+  // View drawings button on machine card
+  const viewDrawings = target.closest('[data-view-drawings]');
+  if (viewDrawings) { openJobDetail(viewDrawings.dataset.viewDrawings); return; }
 });
 
 document.addEventListener('change', function(e) {
@@ -996,6 +1060,20 @@ document.addEventListener('change', function(e) {
   if (sel) {
     const m = machines.find(x => x.id === sel.dataset.machine);
     if (m) { m.status = sel.value; renderAll(); }
+    return;
+  }
+
+  // Attachment file input
+  if (e.target.id === 'attachmentInput') {
+    Array.from(e.target.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        pendingAttachments.push({ name: file.name, type: file.type, data: ev.target.result });
+        renderAttachmentList();
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
     return;
   }
 

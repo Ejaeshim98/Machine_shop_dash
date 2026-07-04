@@ -972,6 +972,194 @@ body {
 }
 .btn-secondary:hover { border-color: var(--text-dim); }
 
+/* make modal body scrollable for long forms */
+.modal-body { max-height: 68vh; overflow-y: auto; }
+
+/* ── ATTACHMENTS — modal upload zone ── */
+.att-label-hint {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.attachment-zone {
+  background: var(--surface2);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.attachment-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.att-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px 4px 5px;
+  max-width: 210px;
+}
+
+.att-thumb {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.att-pdf-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(239,68,68,0.12);
+  color: var(--red);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+.att-name {
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.att-remove {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0 2px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.att-remove:hover { color: var(--red); }
+
+.btn-attach {
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  text-align: center;
+  transition: background 0.15s;
+}
+.btn-attach:hover { background: var(--surface); }
+
+/* ── ATTACHMENTS — job detail gallery ── */
+.att-section {
+  margin-top: 14px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+
+.att-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.att-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.att-gallery-item {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 80px;
+}
+
+.att-gallery-item img {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  transition: opacity 0.15s, transform 0.15s;
+}
+.att-gallery-item:hover img { opacity: 0.8; transform: scale(1.03); }
+
+.att-pdf-icon-lg {
+  width: 80px;
+  height: 60px;
+  background: rgba(239,68,68,0.12);
+  color: var(--red);
+  border-radius: 6px;
+  border: 1px solid rgba(239,68,68,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  transition: background 0.15s;
+}
+.att-gallery-item:hover .att-pdf-icon-lg { background: rgba(239,68,68,0.22); }
+
+.att-gallery-name {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 80px;
+}
+
+/* ── VIEW DRAWINGS button on machine card ── */
+.btn-view-drawings {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  width: 100%;
+  margin-top: 8px;
+  text-align: left;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-view-drawings:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── KANBAN CARD attachment badge ── */
+.kc-attach {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
 .btn-delete {
   background: rgba(239,68,68,0.15);
   border: 1px solid rgba(239,68,68,0.3);
