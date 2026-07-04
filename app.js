@@ -119,8 +119,10 @@ function makeDummyWorkOrder(j) {
 }
 
 (function addDemoDocuments() {
-  const j = jobs.find(x => x.id === 'J1001');
-  if (j) { j.drawing = makeDummyDrawing(j); j.workOrder = makeDummyWorkOrder(j); }
+  ['J1001', 'J1002'].forEach(id => {
+    const j = jobs.find(x => x.id === id);
+    if (j) { j.drawing = makeDummyDrawing(j); j.workOrder = makeDummyWorkOrder(j); }
+  });
 })();
 
 // ── AUTH & PERMISSIONS ───────────────────────────────────────
