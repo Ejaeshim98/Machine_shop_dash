@@ -5,7 +5,7 @@ A browser-based desktop dashboard for CNC machine shop management. Tracks jobs, 
 ---
 
 ## Current Status
-**Segments 1–8 complete. Next: Segment 9 — Electron Desktop App**
+**Segments 1–9 complete. Next: Segment 10 — Local Data Persistence**
 
 ### What's working now
 - Login screen with three demo accounts (admin/admin123, manager/manager123, operator/operator123)
@@ -55,20 +55,21 @@ A browser-based desktop dashboard for CNC machine shop management. Tracks jobs, 
 - Write changes back to Excel in real time
 - Export snapshot button for audit purposes
 
-### Segment 6 — UI/UX Design Pass 🔄 (Next)
+### Segment 6 — UI/UX Design Pass ✅
 - Full visual redesign: colors, typography, spacing, branding
-- Mobile / tablet responsive layout
 - Dark/light mode toggle
+- Polished kanban cards, machine cards, and stat bar
 
-### Segment 7 — API Integrations 🔄 (Next)
-- Live part counter via MTConnect (Haas, Mazak, Fanuc over WiFi)
-- Email / SMS alerts for overdue jobs and machine stops
-- ERP / QuickBooks quote import
+### Segment 7 — API Integrations ✅
+- Excel export via SheetJS
+- Part drawing and work order file attachments (PDF/JPG/PNG) per job
+- In-app file preview panel with zoom, print, and save-as
 
-### Segment 8 — User Permissions (Future)
-- User login system
-- Role-based access: Admin, Manager, Operator
-- Operators can update status; Managers can create/edit/delete jobs
+### Segment 8 — User Permissions ✅
+- Login screen with three demo accounts (admin/admin123, manager/manager123, operator/operator123)
+- Role-based access: Admins and Managers can create/edit/delete jobs and machines; Operators can update machine status only
+- Session persists on page refresh; logout clears the session
+- Invalid username/password error message on failed login
 
 ---
 
@@ -76,8 +77,10 @@ A browser-based desktop dashboard for CNC machine shop management. Tracks jobs, 
 
 Goal: package the dashboard as a native Windows/Mac desktop app.
 
-### Segment 9 — Electron Wrapper
-Wrap the web app in Electron. Produces a `.exe` installer — no browser required. App gets its own icon, window, and taskbar entry.
+### Segment 9 — Electron Wrapper ✅
+- Wrapped the web app in Electron — runs as a native Windows desktop app
+- `Launch Dashboard.bat` for quick dev launch via `npm start`
+- `npm run build` produces `dist\win-unpacked\Shop Floor Dashboard.exe` — standalone, no browser required
 
 ### Segment 10 — Local Data Persistence
 Save all jobs and machine data to a local file (SQLite or JSON) so data survives between sessions. Replaces dummy data with real persistent storage.
@@ -90,9 +93,6 @@ Adds a small server to enable: real MTConnect machine polling, email/SMS alerts,
 
 ### Segment 13 — Installer & Distribution
 Signed Windows installer (`.exe`) ready for deployment across all shop floor machines.
-- User login system
-- Role-based access: Admin, Manager, Operator
-- Operators can update status; Managers can create/edit/delete jobs
 
 ---
 
@@ -109,4 +109,7 @@ Signed Windows installer (`.exe`) ready for deployment across all shop floor mac
 | `index.html` | Main dashboard layout |
 | `styles.css` | All styling |
 | `app.js` | Data, logic, rendering |
+| `main.js` | Electron entry point |
+| `package.json` | Node/Electron config and build settings |
+| `Launch Dashboard.bat` | Double-click to launch the app in dev mode |
 | `README.md` | This file — progress tracker and roadmap |
