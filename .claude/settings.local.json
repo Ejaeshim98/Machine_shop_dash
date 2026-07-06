@@ -5,7 +5,9 @@
       "Bash(where node *)",
       "Bash(where npx *)",
       "PowerShell(Get-Command node, npx, python, python3 -ErrorAction SilentlyContinue)",
-      "PowerShell(Get-Command python3.11, py, iisexpress -ErrorAction SilentlyContinue | Select-Object Name, Source; $env:PATH -split ';' | Where-Object { $_ -match 'python|node|ruby' })"
+      "PowerShell(Get-Command python3.11, py, iisexpress -ErrorAction SilentlyContinue | Select-Object Name, Source; $env:PATH -split ';' | Where-Object { $_ -match 'python|node|ruby' })",
+      "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;$env:PATH\"; cd \"C:\\\\Users\\\\ejaes\\\\Documents\\\\Claude\\\\Projects\\\\6_30_26\"; npm install --save-dev electron electron-builder 2>&1 | Select-Object -Last 10)",
+      "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;$env:PATH\"; cd \"C:\\\\Users\\\\ejaes\\\\Documents\\\\Claude\\\\Projects\\\\6_30_26\"; $p = Start-Process -FilePath \"npm\" -ArgumentList \"start\" -PassThru -NoNewWindow; Start-Sleep -Seconds 6; if \\(!$p.HasExited\\) { \"App launched successfully \\(PID $\\($p.Id\\)\\)\"; $p.Kill\\(\\) } else { \"Process exited with code $\\($p.ExitCode\\)\" })"
     ]
   }
 }
